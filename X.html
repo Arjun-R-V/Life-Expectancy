@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<head>
+	<style>
+  .bar{
+    fill: #07CB46;
+  }
+  .bar:hover{
+    fill: #0716CB;
+  }
+  .barU{
+    fill:#A52B11;
+  }
+	.axis {
+	  font: 15px sans-serif;
+
+	}
+	.axis path,
+	.axis line {
+	  fill: none;
+	  stroke: #000;
+	  shape-rendering: crispEdges;
+	}
+	</style>
+</head>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+<script>
+
+  d3.json("second.json", function(error, data) {
+    data.forEach(function(arjun) {
+        arjun.year = arjun.year;
+        arjun.LEF=parseInt(arjun.LEF);
+        arjun.LEM=parseInt(arjun.LEM);
+        arjun.Value = parseInt(arjun.LEF+arjun.LEM);
+    });
+
+  var margin = {top: 20, right: 20, bottom: 70, left: 220},
+      width = 1200 - margin.left - margin.right,
+      height = 600 - margin.top - margin.bottom;
+
+  var x = d3.scale.ordinal().rangeRoundBands([0, width], .05);
+  var y = d3.scale.linear().range([height, 0]);
+
+  var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
+
+  var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left");
+
+  var tip = d3.tip()
+    .attr('class', 'd3-tip')
+    .offset([-10, 0])
+    .html(function(arjun) {
+      return "<strong>LEM:</strong> <span style='color:red'>" + arjun.LEM + "</span>";
+  });
+
+	  var tip2 = d3.tip()
+	    .attr('class', 'd3-tip2')
+	    .offset([-10, 0])
+	    .html(function(arjun) {
+	      return "<strong>LEF:</strong> <span style='color:red'>" + arjun.LEF + "</span>";
+	  });
+  var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform","translate(" + margin.left + "," + margin.top + ")");
+
+    svg.call(tip);
+
+  x.domain(data.map(function(arjun) { return arjun.year; }));
+  y.domain([0, d3.max(data, function(arjun) { return arjun.Value; })]);
+
+
+  svg.append("text")
+      .attr("x", 450 )
+      .attr("y", 575 )
+      .style("text-anchor", "middle")
+      .attr("font-size",22)
+      .style("font-weight","bold")
+      .text("year");
+
+  svg.append("text")
+      .attr("x", -240 )
+      .attr("y", -40 )
+      .style("text-anchor", "middle")
+      .attr("transform", "rotate(-90)")
+      .attr("font-size",22)
+      .style("font-weight","bold")
+      .text("Life Expentancy");
+
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis)
+    .selectAll("text")
+      .style("text-anchor", "end")
+      .attr("dx", "-.8em")
+      .attr("dy", "-.55em")
+      .attr("transform", "rotate(-90)" );
+
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 5)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("LEF/LEM");
+
+  svg.selectAll("bar")
+      .data(data)
+      .enter().append("rect")
+      .attr("class", "bar")
+      .attr("x", function(arjun) { return x(arjun.year); })
+      .attr("width", x.rangeBand())
+      .attr("y", function(arjun) { return y(arjun.Value); })
+      .attr("height", function(arjun) { return height - y(arjun.Value); })
+			.on('mouseover', tip2.show)
+			.on('mouseout', tip2.hide);
+
+  svg.selectAll("bar")
+      .data(data)
+      .enter().append("rect")
+      .attr("class", "bar barU")
+      .attr("x", function(arjun) { return x(arjun.year); })
+      .attr("width", x.rangeBand())
+      .attr("y", function(arjun) { return y(arjun.Value); })
+      .attr("height", function(arjun) { return height - y(arjun.LEF); })
+      .on('mouseover', tip.show)
+      .on('mouseout', tip.hide);
+
+  svg.append('text')
+      .attr('fill', 'black')
+      .attr('x', 30 + margin.left + 8)
+      .attr('y', 0  * 24 + 24)
+      .text("LEF");
+
+  svg.append('rect')
+      .attr('fill', "#07CB46")
+      .attr('width', 20)
+      .attr('height', 20)
+      .attr('x', margin.left + 90)
+      .attr('y', 0 * 24 + 6);
+
+  svg.append('text')
+      .attr('fill', 'black')
+      .attr('x',30 + margin.left + 8)
+      .attr('y', 1 * 24 + 24)
+      .text("LEM");
+
+  svg.append('rect')
+      .attr('fill', "#A52B11")
+      .attr('width', 20)
+      .attr('height', 20)
+      .attr('x',margin.left + 90)
+      .attr('y', 1 * 24 + 6);
+
+});
+</script>
+</body>
+</html>
